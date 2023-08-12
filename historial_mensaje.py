@@ -12,11 +12,12 @@ class Cls_Burbuja:
         self.ventana.grid_propagate(0)
         self.frm = tk.Frame(self.ventana, bg="#e5ddd5")
     
-    def fnt_mensaje(self,mensaje):
-        self.lbl = tk.Label(self.frm, text=mensaje, bg=self.bg, padx=10, pady=5,wraplength=180,justify="left")
+    def fnt_mensaje(self,mensaje,control_mensaje):
+        self.lbl = tk.Label(self.frm, text=mensaje, bg=self.bg, padx=10, pady=5,wraplength=180,justify="left",font=("Arial", 12))
         self.lbl.pack()
         self.frm.pack()
         self.frm.update_idletasks()
+        return control_mensaje
 
 
   

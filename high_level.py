@@ -22,7 +22,7 @@ class Cls_Inferencia:
                 #contexto junto con la nueva entrada del usuario 
                 f"{self.byte_historial_Contexto.decode(self.encoding)}### User:\n{entrada}\n\n### AI:\n",
                 max_tokens=256,
-                temperature=1.31, 
+                temperature=0.4,#1.31, 
                 top_p=0.14, 
                 top_k=49,
                 repeat_penalty=1.17,
@@ -54,7 +54,7 @@ class Cls_Inferencia:
 
 
         #espacio graficos para envíar y organizar el mensaje de Pofi
-        self.obj_cls_burbuja_pofi.fnt_mensaje(self.texto_inferencia)
+        valor_retorno = self.obj_cls_burbuja_pofi.fnt_mensaje(self.texto_inferencia,True)
         self.frm.config(state=tk.NORMAL,)
         self.frm.tag_configure('tag-left', justify='left')
         self.frm.insert('end', '\n ','tag-left')
@@ -81,3 +81,5 @@ class Cls_Inferencia:
             #metiendo más tokens 
             self.byte_historial_Contexto = self.llm.detokenize(n_tokens)
            # print(len(n_tokens))
+
+        return valor_retorno
