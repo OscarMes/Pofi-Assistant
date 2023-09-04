@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import DISABLED
-from datetime import datetime
 import tkinter.scrolledtext as ScrolledText
 import PIL.Image
 import PIL.ImageTk
@@ -8,7 +7,11 @@ from high_level import Cls_Inferencia
 from historial_mensaje import Cls_Burbuja
 from llama_cpp import Llama, llama_tokenize
 import threading
-import concurrent.futures
+import customtkinter as ctk
+try: 
+    from ctypes import windll, byref, sizeof, c_int
+except:
+    pass
 
 
 class Cls_Frames:
@@ -42,43 +45,73 @@ class Cls_Ventana:
         self.encoding = "utf-8"
         self.ObjCls_Inferencia = Cls_Inferencia(n_ctx=self.n_ctx,llm=self.llm,encoding=self.encoding)
 
-        self.ventana = tk.Tk()
+        #self.ventana = tk.Tk()
+        self.ventana = ctk.CTk()
         self.fnt_ParametrosVentana()
+        self.fnt_presionar_frm
+
+        self.fnt_mover_ventana
+        
         self.ventana.mainloop()
 
     def fnt_ParametrosVentana(self):
         self.int_ancho_ventana = 500
-        self.int_alto_ventana = 540
+        self.int_alto_ventana = 520
         self.ventana.geometry(f"{self.int_ancho_ventana}x{self.int_alto_ventana}")
+        #====intento de crear mi barra personalizada====#
+        #self.ventana.overrideredirect(True)
+        #=======#
+        self.ventana.title("WhatChat")
+        self.ventana.iconbitmap("icons\shimeji.ico")
+        ctk.set_appearance_mode("darck")
+
+
+
+        self.ventana.resizable(False, False)
         self.fnt_Items()
 
     def fnt_Items(self):
         #frames
-        ObjCls_Frames_contenedor = Cls_Frames(ventana=self.ventana,row=0,column=0,width=self.int_ancho_ventana,height=580,color="#e5ddd5")
+        #este es el contenedor principal de todos los items
+        ObjCls_Frames_contenedor = Cls_Frames(ventana=self.ventana,row=0,column=0,width=self.int_ancho_ventana,height=540,color="#e5ddd5")
+
+        #======= Quería crear una barra de menú personalizada =====#
+        #frame para minimizar, mover y cerrar la ventana
+        #ObjCls_Frames_Clos_Min_Mov = Cls_Frames(ventana=ObjCls_Frames_contenedor.frm,row=0,column=0,width=self.int_ancho_ventana,height=20,color="#e5ddd5",columnspan=3)
+        #ObjCls_Frames_Espacio_Mover = Cls_Frames(ventana=ObjCls_Frames_Clos_Min_Mov.frm,row=0,column=0,width=450,height=50,color="#e5ddd5",columnspan=2)
+        #ObjCls_Frames_Espacio_Mover.frm.bind("<ButtonPress-1>", self.fnt_presionar_frm)
+        #ObjCls_Frames_Espacio_Mover.frm.bind("<B1-Motion>", self.fnt_mover_ventana)
+        #ObjCls_Frames_Botones_principales = Cls_Frames(ventana=ObjCls_Frames_Clos_Min_Mov.frm,row=0,column=2,width=50,height=50,color="#e5ddd5")
 
         #esta sección es la cabecera de la aplicación
-        ObjCls_Frames_Nombre_IA = Cls_Frames(ventana=ObjCls_Frames_contenedor.frm,row=0,column=0,width=self.int_ancho_ventana,height=60,color="#095f56",columnspan=2)
+        #el frame donde se almacena el nombre, la foto y el estado es este (Nombre_IA)
+        ObjCls_Frames_Nombre_IA = Cls_Frames(ventana=ObjCls_Frames_contenedor.frm,row=1,column=0,width=self.int_ancho_ventana,height=60,color="#095f56",columnspan=2)
         ObjCls_Frames_Boton_imagen = Cls_Frames(ventana=ObjCls_Frames_Nombre_IA.frm,row=0,column=0,width=70,height=60,color="#095f56")
         ObjCls_Frames_Pofi_estado = Cls_Frames(ventana=ObjCls_Frames_Nombre_IA.frm,row=0,column=1,width=400,height=60,color="#095f56")
         ObjCls_Frames_llamadas = Cls_Frames(ventana=ObjCls_Frames_Nombre_IA.frm,row=0,column=2,width=self.int_ancho_ventana,height=60,color="#095f56")
 
-        self.ObjCls_Frames_historial_mensaje = Cls_Frames(ventana=ObjCls_Frames_contenedor.frm,row=1,column=0,width=self.int_ancho_ventana,height=400,color="#e5ddd5",columnspan=2,rowspan=2)
+        #frame para poner el scroll historial de mensajes
+        self.ObjCls_Frames_historial_mensaje = Cls_Frames(ventana=ObjCls_Frames_contenedor.frm,row=2,column=0,width=self.int_ancho_ventana,height=400,color="#e5ddd5",columnspan=2,rowspan=2)
        
-        self.ObjCls_Frames_Entrada_contenedor = Cls_Frames(ventana=ObjCls_Frames_contenedor.frm,row=3,column=0,width=500,height=50,color="#e5ddd5", columnspan=3)
+        #frame que contiene la parte de abajo del diseño, entrada de texto y botón de enviar
+        self.ObjCls_Frames_Entrada_contenedor = Cls_Frames(ventana=ObjCls_Frames_contenedor.frm,row=4,column=0,width=500,height=50,color="#e5ddd5", columnspan=3)
         ObjCls_Frames_Entrada_Text = Cls_Frames(ventana=self.ObjCls_Frames_Entrada_contenedor.frm,row=0,column=0,width=450,height=50,color="#e5ddd5",columnspan=2)
         ObjCls_Frames_Entrada_Boton = Cls_Frames(ventana=self.ObjCls_Frames_Entrada_contenedor.frm,row=0,column=2,width=50,height=50,color="#e5ddd5")
 
-        ObjCls_Frames_Pie = Cls_Frames(ventana=ObjCls_Frames_contenedor.frm,row=5,column=0,width=self.int_ancho_ventana,height=10,color="#e5ddd5",columnspan=3)
+        #un simple frame para dejar un espacio entre la entrada de texto y el marco de la ventana
+        ObjCls_Frames_Pie = Cls_Frames(ventana=ObjCls_Frames_contenedor.frm,row=6,column=0,width=self.int_ancho_ventana,height=10,color="#e5ddd5",columnspan=3)
         
-        #label
 
+        #label
         objCls_Label_nombre = Cls_Label(ObjCls_Frames_Pofi_estado.frm,"Pofi","#095f56",17,"white",0,0,None,None)
         objCls_Label_online = Cls_Label(ObjCls_Frames_Pofi_estado.frm,"En linea","#095f56",13,"white",1,0,None,None)
         
         #text
         self.txt_chat = tk.Text(ObjCls_Frames_Entrada_Text.frm,font=("FixedSys", 12),width=54,height=2)
         self.txt_chat.grid(column=0,row=0,padx=10,pady=10)
+        #establecer el focus en el area de escritura
         self.txt_chat.focus_set()
+        #evitar que "Enter" sea un salto de linea 
         self.txt_chat.bind("<Return>", self.fnt_Obtener_Mensaje)
 
         scrollbar = tk.Scrollbar(ObjCls_Frames_Entrada_Text.frm, command=self.txt_chat.yview)
@@ -90,6 +123,9 @@ class Cls_Ventana:
         self.objCls_Botones_imagen = Cls_Botones(ObjCls_Frames_Boton_imagen.frm,row=0,column=0,width=46,height=46,bg="#095f56",acbg="#095f56",img=r"icons/pofi_img.png",resize=9,pady=6,padx=10)
         self.ObjCls_Botones_Enviar = Cls_Botones(ObjCls_Frames_Entrada_Boton.frm,row=0,column=0,width=40,height=40,bg="#dedbd6",acbg="#dedbd6", img="icons/enviando.png",resize=12,pady=7,padx=4, command=lambda:self.fnt_Obtener_Mensaje(None))
 
+        #======Botones descartados =====#
+        #self.ObjCls_Botones_Minimizar = Cls_Botones(ObjCls_Frames_Botones_principales.frm,row=0,column=0,width=20,height=20,bg="#dedbd6",acbg="#dedbd6", img="icons/minimizar.png",resize=23,pady=0,padx=1, command= lambda:self.ventana.iconify())
+        #self.ObjCls_Botones_Cerrar = Cls_Botones(ObjCls_Frames_Botones_principales.frm,row=0,column=1,width=20,height=20,bg="#dedbd6",acbg="#dedbd6", img="icons/cerrar.png",resize=23,pady=0,padx=0, command=lambda:self.ventana.destroy())
 
 
         self.ScrText_historial_Chat = ScrolledText.ScrolledText(
@@ -101,6 +137,13 @@ class Cls_Ventana:
         
         self.ObjCls_Inferencia.fnt_parametros_ventana(self.ScrText_historial_Chat)
 
+    def fnt_mover_ventana(self,event):
+        self.ventana.geometry(f"+{event.x_root - self.x_click}+{event.y_root - self.y_click}")
+
+    def fnt_presionar_frm(self,event):
+        
+        self.x_click = event.x
+        self.y_click = event.y
 
     def fnt_Obtener_Mensaje(self,event):
 

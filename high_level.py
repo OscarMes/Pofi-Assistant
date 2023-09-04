@@ -23,7 +23,7 @@ class Cls_Inferencia:
                 f"{self.byte_historial_Contexto.decode(self.encoding)}### User:\n{entrada}\n\n### AI:\n",
                 max_tokens=256,
                 temperature=0.4,#1.31, 
-                top_p=0.14, 
+                top_p=0.10, 
                 top_k=49,
                 repeat_penalty=1.17,
                 tfs_z=1.0,
