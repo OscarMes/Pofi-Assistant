@@ -1,5 +1,8 @@
 from historial_mensaje import Cls_Burbuja
 import tkinter as tk
+import time 
+import json
+from flujo_mensaje import Cls_flujo
 
 class Cls_Inferencia:
     def __init__(self,n_ctx, llm, encoding):
@@ -22,7 +25,7 @@ class Cls_Inferencia:
                 #contexto junto con la nueva entrada del usuario 
                 f"{self.byte_historial_Contexto.decode(self.encoding)}### User:\n{entrada}\n\n### AI:\n",
                 max_tokens=256,
-                temperature=0.4,#1.31, 
+                temperature=1.31, 
                 top_p=0.10, 
                 top_k=49,
                 repeat_penalty=1.17,
@@ -63,6 +66,13 @@ class Cls_Inferencia:
         #Fin de espacio grafico
 
 
+
+        Obj_Cls_flujo = Cls_flujo()
+        Obj_Cls_flujo.fnt_modificar_JSON(_user="",_ia=self.texto_inferencia,_state="Escribiendo")
+
+
+
+
         #agrego un salto de línea al final de todo el contexto
         self.byte_historial_Contexto += "\n\n".encode(self.encoding)
         
@@ -82,4 +92,3 @@ class Cls_Inferencia:
             self.byte_historial_Contexto = self.llm.detokenize(n_tokens)
            # print(len(n_tokens))
 
-        return valor_retorno

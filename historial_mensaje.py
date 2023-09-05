@@ -17,7 +17,7 @@ class Cls_Burbuja:
         self.lbl.pack()
         self.frm.pack()
         self.frm.update_idletasks()
-        return control_mensaje
+
 
 
   

@@ -5,13 +5,14 @@ import PIL.Image
 import PIL.ImageTk
 from high_level import Cls_Inferencia
 from historial_mensaje import Cls_Burbuja
+from flujo_mensaje import Cls_flujo
 from llama_cpp import Llama, llama_tokenize
 import threading
 import customtkinter as ctk
-try: 
-    from ctypes import windll, byref, sizeof, c_int
-except:
-    pass
+import json
+
+
+
 
 
 class Cls_Frames:
@@ -44,13 +45,16 @@ class Cls_Ventana:
         self.llm = Llama(model_path=self.model,n_batch = 512,low_vram = True,n_ctx=self.n_ctx)
         self.encoding = "utf-8"
         self.ObjCls_Inferencia = Cls_Inferencia(n_ctx=self.n_ctx,llm=self.llm,encoding=self.encoding)
-
+        #self.ObjCls_flujo = Cls_flujo(_user="",_ia="",_state="")
+        self.ObjCls_flujo = Cls_flujo()
+        self.ObjCls_flujo.fnt_modificar_JSON(_user="",_ia="",_state="")
         #self.ventana = tk.Tk()
         self.ventana = ctk.CTk()
         self.fnt_ParametrosVentana()
-        self.fnt_presionar_frm
 
-        self.fnt_mover_ventana
+
+        #self.fnt_presionar_frm
+        #self.fnt_mover_ventana
         
         self.ventana.mainloop()
 
@@ -60,7 +64,7 @@ class Cls_Ventana:
         self.ventana.geometry(f"{self.int_ancho_ventana}x{self.int_alto_ventana}")
         #====intento de crear mi barra personalizada====#
         #self.ventana.overrideredirect(True)
-        #=======#
+        #===============================================#
         self.ventana.title("WhatChat")
         self.ventana.iconbitmap("icons\shimeji.ico")
         ctk.set_appearance_mode("darck")
@@ -82,6 +86,7 @@ class Cls_Ventana:
         #ObjCls_Frames_Espacio_Mover.frm.bind("<ButtonPress-1>", self.fnt_presionar_frm)
         #ObjCls_Frames_Espacio_Mover.frm.bind("<B1-Motion>", self.fnt_mover_ventana)
         #ObjCls_Frames_Botones_principales = Cls_Frames(ventana=ObjCls_Frames_Clos_Min_Mov.frm,row=0,column=2,width=50,height=50,color="#e5ddd5")
+        #==========================================================#
 
         #esta sección es la cabecera de la aplicación
         #el frame donde se almacena el nombre, la foto y el estado es este (Nombre_IA)
@@ -126,7 +131,7 @@ class Cls_Ventana:
         #======Botones descartados =====#
         #self.ObjCls_Botones_Minimizar = Cls_Botones(ObjCls_Frames_Botones_principales.frm,row=0,column=0,width=20,height=20,bg="#dedbd6",acbg="#dedbd6", img="icons/minimizar.png",resize=23,pady=0,padx=1, command= lambda:self.ventana.iconify())
         #self.ObjCls_Botones_Cerrar = Cls_Botones(ObjCls_Frames_Botones_principales.frm,row=0,column=1,width=20,height=20,bg="#dedbd6",acbg="#dedbd6", img="icons/cerrar.png",resize=23,pady=0,padx=0, command=lambda:self.ventana.destroy())
-
+        #===============================#
 
         self.ScrText_historial_Chat = ScrolledText.ScrolledText(
             self.ObjCls_Frames_historial_mensaje.frm,
@@ -137,22 +142,33 @@ class Cls_Ventana:
         
         self.ObjCls_Inferencia.fnt_parametros_ventana(self.ScrText_historial_Chat)
 
-    def fnt_mover_ventana(self,event):
-        self.ventana.geometry(f"+{event.x_root - self.x_click}+{event.y_root - self.y_click}")
+    #====funciones de barra de titulo personalizado==#
+    # def fnt_mover_ventana(self,event):
+    #     self.ventana.geometry(f"+{event.x_root - self.x_click}+{event.y_root - self.y_click}")
 
-    def fnt_presionar_frm(self,event):
+    # def fnt_presionar_frm(self,event):
         
-        self.x_click = event.x
-        self.y_click = event.y
+    #     self.x_click = event.x
+    #     self.y_click = event.y
+    #=================================================#
 
     def fnt_Obtener_Mensaje(self,event):
 
         mensaje = self.txt_chat.get("1.0",tk.END)
 
+        
         if self.txt_chat.compare("end-1c","==","1.0"):
             return "break"
         else:
-            if self.control_mensaje == False:
+            #debo leer el archivo JSON para usar el condicional
+            self.ObjCls_flujo = Cls_flujo()
+            _user = self.ObjCls_flujo.fnt_leer_JSON()
+
+
+            if _user == "":
+                
+                #modifico el contenido del JSON 
+                self.ObjCls_flujo.fnt_modificar_JSON(_user=mensaje,_ia="",_state="En línea")
             
                 obj_cls_burbuja_usuario = Cls_Burbuja(self.ScrText_historial_Chat,0,0,"#d5ffc6")
                 
@@ -171,8 +187,8 @@ class Cls_Ventana:
                 self.control_mensaje = mensaje_control
 
                 
-
-                #envio de mensajes sin manipulación de hilo
+                
+                #envio de mensajes sin manipulación de hilo(esto causa que la ventana principal se congele)
                 #self.ObjCls_Inferencia.fnt_inferencia(mensaje)
 
 
@@ -190,13 +206,9 @@ class Cls_Ventana:
                 self.ScrText_historial_Chat.see(tk.END)
                 #limpia el campo de texto(entrada de texto)
                 self.txt_chat.delete("1.0", tk.END)
-            
+                
                 return "break"
             else:
-                mensaje_control = self.hilo_inferencia.is_alive()
-                if mensaje_control == False:
-                    self.control_mensaje = False 
-                    
                 return "break"
         
 
