@@ -1,25 +1,27 @@
+import tkinter as tk
 import json
 
-# Nombre del archivo JSON
-nombre_archivo = 'datos.json'
+def leer_json():
+    try:
+        with open('mensaje.json', 'r') as archivo:
+            datos = json.load(archivo)
+            # Actualiza la interfaz de usuario con los datos leídos
+            etiqueta.config(text=f'Valor 1: {datos["User"]}, Valor 2: {datos["AI"]}')
+    except FileNotFoundError:
+        # Manejo de errores si el archivo no se encuentra
+        etiqueta.config(text='Archivo JSON no encontrado')
+    ventana.after(1000, leer_json)  # Llama a leer_json cada 1000 milisegundos (1 segundo)
 
-# Leer el contenido del archivo JSON
-with open("mensaje.json", 'r', encoding="utf-8") as archivo:
-    datos = json.load(archivo)
+# Crear la ventana principal de tkinter
+ventana = tk.Tk()
+ventana.title('Lectura de JSON en tiempo real')
 
-# Ahora, puedes acceder a los datos como un diccionario de Python
-nombre = datos['nombre']
-edad = datos['edad']
-ciudad = datos['ciudad']
+# Crear una etiqueta para mostrar los datos JSON
+etiqueta = tk.Label(ventana, text='', font=('Helvetica', 14))
+etiqueta.pack(pady=20)
 
-# Imprimir los datos leídos
-print("Nombre:", nombre)
-print("Edad:", edad)
-print("Ciudad:", ciudad)
+# Iniciar la lectura JSON
+leer_json()
 
-# Modificar los datos
-datos['edad'] = 31
-
-# Escribir los datos modificados de nuevo en el archivo JSON
-with open("mensaje.json", 'w', encoding="utf-8") as archivo:
-    json.dump(datos, archivo, indent=4)  # indent para una escritura formateada
+# Iniciar el bucle de tkinter
+ventana.mainloop()

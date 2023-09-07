@@ -17,7 +17,7 @@ class Cls_Inferencia:
         self.frm = frm
 
     def fnt_inferencia(self, entrada):
-        self.obj_cls_burbuja_pofi = Cls_Burbuja(self.frm,1,0,"#ffffff")
+        # self.obj_cls_burbuja_pofi = Cls_Burbuja(self.frm,1,0,"#ffffff")
 
         #se establecen los datos para la inferencia
         stream = self.llm(
@@ -57,12 +57,12 @@ class Cls_Inferencia:
 
 
         #espacio graficos para envíar y organizar el mensaje de Pofi
-        valor_retorno = self.obj_cls_burbuja_pofi.fnt_mensaje(self.texto_inferencia,True)
-        self.frm.config(state=tk.NORMAL,)
-        self.frm.tag_configure('tag-left', justify='left')
-        self.frm.insert('end', '\n ','tag-left')
-        self.frm.window_create('end', window=self.obj_cls_burbuja_pofi.frm)
-        self.frm.see(tk.END)
+        # valor_retorno = self.obj_cls_burbuja_pofi.fnt_mensaje(self.texto_inferencia,True)
+        # self.frm.config(state=tk.NORMAL,)
+        # self.frm.tag_configure('tag-left', justify='left')
+        # self.frm.insert('end', '\n ','tag-left')
+        # self.frm.window_create('end', window=self.obj_cls_burbuja_pofi.frm)
+        # self.frm.see(tk.END)
         #Fin de espacio grafico
 
 

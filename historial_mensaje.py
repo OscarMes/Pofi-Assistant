@@ -16,7 +16,7 @@ class Cls_Burbuja:
         self.lbl = tk.Label(self.frm, text=mensaje, bg=self.bg, padx=10, pady=5,wraplength=180,justify="left",font=("Arial", 12))
         self.lbl.pack()
         self.frm.pack()
-        self.frm.update_idletasks()
+        #self.frm.update_idletasks()
 
 
 

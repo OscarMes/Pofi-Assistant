@@ -9,7 +9,6 @@ from flujo_mensaje import Cls_flujo
 from llama_cpp import Llama, llama_tokenize
 import threading
 import customtkinter as ctk
-import json
 
 
 
@@ -152,6 +151,29 @@ class Cls_Ventana:
     #     self.y_click = event.y
     #=================================================#
 
+        self.fnt_leer_AI()
+
+    def fnt_leer_AI(self):
+        self.ObjCls_flujo = Cls_flujo()
+        _user,_ai = self.ObjCls_flujo.fnt_leer_JSON()
+        self.ventana.after(1000,self.fnt_leer_AI)
+
+        if _ai != "":
+            self.obj_cls_burbuja_pofi = Cls_Burbuja(self.ScrText_historial_Chat,0,1,"#ffffff")
+
+            self.obj_cls_burbuja_pofi.fnt_mensaje(_ai,True)
+            self.ScrText_historial_Chat.config(state=tk.NORMAL,)
+            self.ScrText_historial_Chat.tag_configure('tag-left', justify='left')
+            self.ScrText_historial_Chat.insert('end', '\n ','tag-left')
+            self.ScrText_historial_Chat.window_create('end', window=self.obj_cls_burbuja_pofi.frm)
+            self.ScrText_historial_Chat.see(tk.END)
+            self.ObjCls_flujo.fnt_modificar_JSON(_user = "", _ia="",_state="En linea")
+        
+    
+
+
+        
+
     def fnt_Obtener_Mensaje(self,event):
 
         mensaje = self.txt_chat.get("1.0",tk.END)
@@ -162,7 +184,7 @@ class Cls_Ventana:
         else:
             #debo leer el archivo JSON para usar el condicional
             self.ObjCls_flujo = Cls_flujo()
-            _user = self.ObjCls_flujo.fnt_leer_JSON()
+            _user,_ai = self.ObjCls_flujo.fnt_leer_JSON()
 
 
             if _user == "":
@@ -206,10 +228,14 @@ class Cls_Ventana:
                 self.ScrText_historial_Chat.see(tk.END)
                 #limpia el campo de texto(entrada de texto)
                 self.txt_chat.delete("1.0", tk.END)
-                
+
+                _user = self.ObjCls_flujo.fnt_leer_JSON()
+
                 return "break"
             else:
                 return "break"
+            
+
         
 
 
