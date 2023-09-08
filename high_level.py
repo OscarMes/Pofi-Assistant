@@ -56,15 +56,6 @@ class Cls_Inferencia:
             self.texto_inferencia += self.text
 
 
-        #espacio graficos para envíar y organizar el mensaje de Pofi
-        # valor_retorno = self.obj_cls_burbuja_pofi.fnt_mensaje(self.texto_inferencia,True)
-        # self.frm.config(state=tk.NORMAL,)
-        # self.frm.tag_configure('tag-left', justify='left')
-        # self.frm.insert('end', '\n ','tag-left')
-        # self.frm.window_create('end', window=self.obj_cls_burbuja_pofi.frm)
-        # self.frm.see(tk.END)
-        #Fin de espacio grafico
-
 
 
         Obj_Cls_flujo = Cls_flujo()

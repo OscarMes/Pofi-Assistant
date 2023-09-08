@@ -11,9 +11,6 @@ import threading
 import customtkinter as ctk
 
 
-
-
-
 class Cls_Frames:
     def __init__(self, ventana,row,column,width,height,color,columnspan=None,rowspan=None,propagate = 0):
         self.frm = tk.Frame(ventana, borderwidth=0,width=width, height=height,padx=0, pady=0)
@@ -35,6 +32,16 @@ class Cls_Botones:
         self.imgBoton = PIL.ImageTk.PhotoImage(self.selcImagen)
         self.btn = tk.Button(ventana,width=width, height=height, image=self.imgBoton,borderwidth=0, command=command,bg=bg,activebackground=acbg)
         self.btn.grid(row=row, column=column,pady=pady,padx=padx)
+
+class Cls_Parametros_Burbujas_chat:
+    def __init__(self,mensaje,tag,justify,scrolltext,color):
+        self.obj_cls_burbuja_pofi = Cls_Burbuja(scrolltext,0,0,color)
+        self.obj_cls_burbuja_pofi.fnt_mensaje(mensaje,True)
+        scrolltext.config(state=tk.NORMAL,)
+        scrolltext.tag_configure(tag, justify=justify)
+        scrolltext.insert('end', '\n ',tag)
+        scrolltext.window_create('end', window=self.obj_cls_burbuja_pofi.frm)
+        scrolltext.see(tk.END)
 
 class Cls_Ventana:
     def __init__(self):
@@ -159,20 +166,9 @@ class Cls_Ventana:
         self.ventana.after(1000,self.fnt_leer_AI)
 
         if _ai != "":
-            self.obj_cls_burbuja_pofi = Cls_Burbuja(self.ScrText_historial_Chat,0,1,"#ffffff")
-
-            self.obj_cls_burbuja_pofi.fnt_mensaje(_ai,True)
-            self.ScrText_historial_Chat.config(state=tk.NORMAL,)
-            self.ScrText_historial_Chat.tag_configure('tag-left', justify='left')
-            self.ScrText_historial_Chat.insert('end', '\n ','tag-left')
-            self.ScrText_historial_Chat.window_create('end', window=self.obj_cls_burbuja_pofi.frm)
-            self.ScrText_historial_Chat.see(tk.END)
+            Obj_Cls_Parametros = Cls_Parametros_Burbujas_chat(mensaje=_ai,tag='tag-left',justify='left',scrolltext=self.ScrText_historial_Chat,color='#ffffff')
             self.ObjCls_flujo.fnt_modificar_JSON(_user = "", _ia="",_state="En linea")
-        
     
-
-
-        
 
     def fnt_Obtener_Mensaje(self,event):
 
@@ -192,41 +188,17 @@ class Cls_Ventana:
                 #modifico el contenido del JSON 
                 self.ObjCls_flujo.fnt_modificar_JSON(_user=mensaje,_ia="",_state="En línea")
             
-                obj_cls_burbuja_usuario = Cls_Burbuja(self.ScrText_historial_Chat,0,0,"#d5ffc6")
-                
-                #primero envio mi mensaje a la interfaz,
-                obj_cls_burbuja_usuario.fnt_mensaje(mensaje,False)
-
+                Obj_Cls_Parametros = Cls_Parametros_Burbujas_chat(mensaje=mensaje,tag='tag-right',justify='right',scrolltext=self.ScrText_historial_Chat,color='#d5ffc6')
+               
                 
                 #luego envio el mensaje al modelo por medio de un hilo
                 self.hilo_inferencia = threading.Thread(target=self.ObjCls_Inferencia.fnt_inferencia, args=(mensaje,))
                 #inicia el hilo 
                 self.hilo_inferencia.start()
-
-
-                mensaje_control = self.hilo_inferencia.is_alive()
-
-                self.control_mensaje = mensaje_control
-
-                
                 
                 #envio de mensajes sin manipulación de hilo(esto causa que la ventana principal se congele)
                 #self.ObjCls_Inferencia.fnt_inferencia(mensaje)
 
-
-                #le indico la posición que debe tener la burbuja del usuario, en este caso la derecha
-                self.ScrText_historial_Chat.tag_configure('tag-right', justify='right')
-
-                #state normal es que el widget si funciona
-                self.ScrText_historial_Chat.config(state=tk.NORMAL,)
-                #saltos de linea 
-                self.ScrText_historial_Chat.insert('end', '\n ','tag-right')
-                #window create es para decirle que vamos a meter dentro del widget de text scrtext
-                self.ScrText_historial_Chat.window_create('end', window=obj_cls_burbuja_usuario.frm)
-                
-                #esto habilita el desplazamiento hacía abajo de manera automatica
-                self.ScrText_historial_Chat.see(tk.END)
-                #limpia el campo de texto(entrada de texto)
                 self.txt_chat.delete("1.0", tk.END)
 
                 _user = self.ObjCls_flujo.fnt_leer_JSON()
