@@ -7,14 +7,15 @@ class Cls_flujo:
             lector = json.load(archivo)
             condicion_user = lector['User']
             respuesta_ai = lector['AI']
-            return condicion_user, respuesta_ai
+            estado_ai = lector['State']
+            return condicion_user, respuesta_ai, estado_ai
 
     
-    def fnt_modificar_JSON(self, _user, _ia, _state):
+    def fnt_modificar_JSON(self, _user, _ai, _state):
         with open('mensaje.json', 'r' ,encoding="utf-8" ) as archivo:
             self.lector = json.load(archivo)
             self.user = _user
-            self.ia = _ia
+            self.ia = _ai
             self.state = _state
             self.lector['User'] = self.user
             self.lector['AI'] = self.ia

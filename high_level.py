@@ -12,13 +12,12 @@ class Cls_Inferencia:
         #creo un cadena de caracteres y la codifico a bytes utf-8
         #este es el historial y contexto de la conversación
         self.byte_historial_Contexto = "".encode(self.encoding)
+        self.Obj_Cls_flujo = Cls_flujo()
 
-    def fnt_parametros_ventana(self,frm):
-        self.frm = frm
 
     def fnt_inferencia(self, entrada):
-        # self.obj_cls_burbuja_pofi = Cls_Burbuja(self.frm,1,0,"#ffffff")
 
+        self.Obj_Cls_flujo.fnt_modificar_JSON(_user=entrada,_ai='',_state="Escribiendo")
         #se establecen los datos para la inferencia
         stream = self.llm(
                 #llamo a esta cadena de caracteres y la decodifico a string para que sea usado como
@@ -36,7 +35,7 @@ class Cls_Inferencia:
                 stream=True,
             #presence_penalty=0.75, 
             #frequency_penalty=0.75,
-            stop=["User:", "\n"],    
+            #stop=["User:", "\n"],    
         )
         #creo un string para extraer la inferencia del modelo 
         self.texto_inferencia = ""
@@ -56,12 +55,7 @@ class Cls_Inferencia:
             self.texto_inferencia += self.text
 
 
-
-
-        Obj_Cls_flujo = Cls_flujo()
-        Obj_Cls_flujo.fnt_modificar_JSON(_user="",_ia=self.texto_inferencia,_state="Escribiendo")
-
-
+        self.Obj_Cls_flujo.fnt_modificar_JSON(_user="",_ai=self.texto_inferencia,_state="En linea")
 
 
         #agrego un salto de línea al final de todo el contexto

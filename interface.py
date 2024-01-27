@@ -36,12 +36,15 @@ class Cls_Botones:
 class Cls_Parametros_Burbujas_chat:
     def __init__(self,mensaje,tag,justify,scrolltext,color):
         self.obj_cls_burbuja_pofi = Cls_Burbuja(scrolltext,0,0,color)
-        self.obj_cls_burbuja_pofi.fnt_mensaje(mensaje,True)
-        scrolltext.config(state=tk.NORMAL,)
-        scrolltext.tag_configure(tag, justify=justify)
-        scrolltext.insert('end', '\n ',tag)
-        scrolltext.window_create('end', window=self.obj_cls_burbuja_pofi.frm)
-        scrolltext.see(tk.END)
+        self.obj_cls_burbuja_pofi.fnt_mensaje(mensaje)
+        self.scrolledtext = scrolltext
+        self.scrolledtext.config(state=tk.NORMAL)
+        #scrolltext.configure(state= "disabled")
+        self.scrolledtext.tag_configure(tag, justify=justify)
+        self.scrolledtext.insert('end', '\n ',tag)
+        self.scrolledtext.window_create('end', window=self.obj_cls_burbuja_pofi.frm)
+    
+        self.scrolledtext.see(tk.END)
 
 class Cls_Ventana:
     def __init__(self):
@@ -53,7 +56,7 @@ class Cls_Ventana:
         self.ObjCls_Inferencia = Cls_Inferencia(n_ctx=self.n_ctx,llm=self.llm,encoding=self.encoding)
         #self.ObjCls_flujo = Cls_flujo(_user="",_ia="",_state="")
         self.ObjCls_flujo = Cls_flujo()
-        self.ObjCls_flujo.fnt_modificar_JSON(_user="",_ia="",_state="")
+        self.ObjCls_flujo.fnt_modificar_JSON(_user="",_ai="",_state="")
         #self.ventana = tk.Tk()
         self.ventana = ctk.CTk()
         self.fnt_ParametrosVentana()
@@ -71,6 +74,7 @@ class Cls_Ventana:
         #====intento de crear mi barra personalizada====#
         #self.ventana.overrideredirect(True)
         #===============================================#
+        self.lbl_estado = "En linea"
         self.ventana.title("WhatChat")
         self.ventana.iconbitmap("icons\shimeji.ico")
         ctk.set_appearance_mode("darck")
@@ -98,7 +102,7 @@ class Cls_Ventana:
         #el frame donde se almacena el nombre, la foto y el estado es este (Nombre_IA)
         ObjCls_Frames_Nombre_IA = Cls_Frames(ventana=ObjCls_Frames_contenedor.frm,row=1,column=0,width=self.int_ancho_ventana,height=60,color="#095f56",columnspan=2)
         ObjCls_Frames_Boton_imagen = Cls_Frames(ventana=ObjCls_Frames_Nombre_IA.frm,row=0,column=0,width=70,height=60,color="#095f56")
-        ObjCls_Frames_Pofi_estado = Cls_Frames(ventana=ObjCls_Frames_Nombre_IA.frm,row=0,column=1,width=400,height=60,color="#095f56")
+        self.ObjCls_Frames_Pofi_estado = Cls_Frames(ventana=ObjCls_Frames_Nombre_IA.frm,row=0,column=1,width=400,height=60,color="#095f56")
         ObjCls_Frames_llamadas = Cls_Frames(ventana=ObjCls_Frames_Nombre_IA.frm,row=0,column=2,width=self.int_ancho_ventana,height=60,color="#095f56")
 
         #frame para poner el scroll historial de mensajes
@@ -114,8 +118,8 @@ class Cls_Ventana:
         
 
         #label
-        objCls_Label_nombre = Cls_Label(ObjCls_Frames_Pofi_estado.frm,"Pofi","#095f56",17,"white",0,0,None,None)
-        objCls_Label_online = Cls_Label(ObjCls_Frames_Pofi_estado.frm,"En linea","#095f56",13,"white",1,0,None,None)
+        objCls_Label_nombre = Cls_Label(self.ObjCls_Frames_Pofi_estado.frm,"Pofi","#095f56",17,"white",0,0,None,None)
+        objCls_Label_online = Cls_Label(self.ObjCls_Frames_Pofi_estado.frm,self.lbl_estado,"#095f56",13,"white",1,0,None,None)
         
         #text
         self.txt_chat = tk.Text(ObjCls_Frames_Entrada_Text.frm,font=("FixedSys", 12),width=54,height=2)
@@ -146,8 +150,6 @@ class Cls_Ventana:
             width="54",
             font="Arial")
         
-        self.ObjCls_Inferencia.fnt_parametros_ventana(self.ScrText_historial_Chat)
-
     #====funciones de barra de titulo personalizado==#
     # def fnt_mover_ventana(self,event):
     #     self.ventana.geometry(f"+{event.x_root - self.x_click}+{event.y_root - self.y_click}")
@@ -162,12 +164,17 @@ class Cls_Ventana:
 
     def fnt_leer_AI(self):
         self.ObjCls_flujo = Cls_flujo()
-        _user,_ai = self.ObjCls_flujo.fnt_leer_JSON()
-        self.ventana.after(1000,self.fnt_leer_AI)
+        _user,_ai,_state = self.ObjCls_flujo.fnt_leer_JSON()
+        self.ventana.after(500,self.fnt_leer_AI)
+        self.ventana.update()
+        self.lbl_estado = _state
+        objCls_Label_online = Cls_Label(self.ObjCls_Frames_Pofi_estado.frm,self.lbl_estado,"#095f56",13,"white",1,0,None,None)
+        #self.ScrText_historial_Chat.see(tk.END)
 
         if _ai != "":
             Obj_Cls_Parametros = Cls_Parametros_Burbujas_chat(mensaje=_ai,tag='tag-left',justify='left',scrolltext=self.ScrText_historial_Chat,color='#ffffff')
-            self.ObjCls_flujo.fnt_modificar_JSON(_user = "", _ia="",_state="En linea")
+            self.ObjCls_flujo.fnt_modificar_JSON(_user = _user, _ai="",_state="En linea")
+            
     
 
     def fnt_Obtener_Mensaje(self,event):
@@ -180,17 +187,14 @@ class Cls_Ventana:
         else:
             #debo leer el archivo JSON para usar el condicional
             self.ObjCls_flujo = Cls_flujo()
-            _user,_ai = self.ObjCls_flujo.fnt_leer_JSON()
+            _user,_ai,_status = self.ObjCls_flujo.fnt_leer_JSON()
 
 
             if _user == "":
                 
                 #modifico el contenido del JSON 
-                self.ObjCls_flujo.fnt_modificar_JSON(_user=mensaje,_ia="",_state="En línea")
+                self.ObjCls_flujo.fnt_modificar_JSON(_user=mensaje,_ai="",_state="En línea")
             
-                Obj_Cls_Parametros = Cls_Parametros_Burbujas_chat(mensaje=mensaje,tag='tag-right',justify='right',scrolltext=self.ScrText_historial_Chat,color='#d5ffc6')
-               
-                
                 #luego envio el mensaje al modelo por medio de un hilo
                 self.hilo_inferencia = threading.Thread(target=self.ObjCls_Inferencia.fnt_inferencia, args=(mensaje,))
                 #inicia el hilo 
@@ -198,19 +202,19 @@ class Cls_Ventana:
                 
                 #envio de mensajes sin manipulación de hilo(esto causa que la ventana principal se congele)
                 #self.ObjCls_Inferencia.fnt_inferencia(mensaje)
+                Obj_Cls_Parametros = Cls_Parametros_Burbujas_chat(mensaje=mensaje,tag='tag-right',justify='right',scrolltext=self.ScrText_historial_Chat,color='#d5ffc6')
 
                 self.txt_chat.delete("1.0", tk.END)
+                
 
-                _user = self.ObjCls_flujo.fnt_leer_JSON()
+                #self.ObjCls_flujo.fnt_modificar_JSON(_user=_user,_ai=_ai,_state="Escribiendo")
+                _user,_ai,_state = self.ObjCls_flujo.fnt_leer_JSON()
+
 
                 return "break"
             else:
                 return "break"
             
-
-        
-
-
 Cls_Ventana()
 
 
