@@ -1,16 +1,17 @@
 import tkinter as tk
-from tkinter import DISABLED
 import tkinter.scrolledtext as ScrolledText
 import PIL.Image
 import PIL.ImageTk
 from high_level import Cls_Inferencia
 from historial_mensaje import Cls_Burbuja
 from flujo_mensaje import Cls_flujo
-from llama_cpp import Llama, llama_tokenize
+from llama_cpp import Llama
 import threading
 import customtkinter as ctk
 
-
+#la clase Frames me permite crear multiples frames sin necesidad de 
+#reescribir código, lo mismo sucede con las demás clases cuyos nombres
+#hacen referencia a un widget
 class Cls_Frames:
     def __init__(self, ventana,row,column,width,height,color,columnspan=None,rowspan=None,propagate = 0):
         self.frm = tk.Frame(ventana, borderwidth=0,width=width, height=height,padx=0, pady=0)
@@ -21,7 +22,7 @@ class Cls_Frames:
         self.frm.grid_propagate(propagate)
 
 class Cls_Label:
-    def __init__(self,ventana,texto,bg,tamano_letra,color_letra,row,column,padx,pady,sticky=None,):
+    def fnt_lbl_parametros(self,ventana,texto,bg,tamano_letra,color_letra,row,column,padx,pady,sticky=None,):
         self.lbl = tk.Label(ventana,text=texto,bg=bg,font=("FixedSys",tamano_letra),fg = color_letra)
         self.lbl.grid(row=row,column=column,sticky=sticky,padx=padx,pady=pady)
 
@@ -33,6 +34,9 @@ class Cls_Botones:
         self.btn = tk.Button(ventana,width=width, height=height, image=self.imgBoton,borderwidth=0, command=command,bg=bg,activebackground=acbg)
         self.btn.grid(row=row, column=column,pady=pady,padx=padx)
 
+#con esta clase puedo crear un mensaje en pantalla y añadir los parametros necesarios
+#si es un mensaje de la IA o un mensaje del usuario, a la par que agregar el 
+#color y la dirección que conlleva cada uno, IA (Izquierda, blanco), Usuario (Derecha, verde)
 class Cls_Parametros_Burbujas_chat:
     def __init__(self,mensaje,tag,justify,scrolltext,color):
         self.obj_cls_burbuja_pofi = Cls_Burbuja(scrolltext,0,0,color)
@@ -46,10 +50,13 @@ class Cls_Parametros_Burbujas_chat:
     
         self.scrolledtext.see(tk.END)
 
+#añado los objetos de las clases creadas anteriormente
 class Cls_Ventana:
     def __init__(self):
         self.control_mensaje = False
+        #agrego la dirección del modelo para que inicie con la interfaz
         self.model = r"model\modelo_Pofi_Lora_ggml-q4_0.bin"
+        #el contexto que tendrá el modelo 
         self.n_ctx = 1024
         self.llm = Llama(model_path=self.model,n_batch = 512,low_vram = True,n_ctx=self.n_ctx)
         self.encoding = "utf-8"
@@ -118,8 +125,10 @@ class Cls_Ventana:
         
 
         #label
-        objCls_Label_nombre = Cls_Label(self.ObjCls_Frames_Pofi_estado.frm,"Pofi","#095f56",17,"white",0,0,None,None)
-        objCls_Label_online = Cls_Label(self.ObjCls_Frames_Pofi_estado.frm,self.lbl_estado,"#095f56",13,"white",1,0,None,None)
+        objCls_Label_nombre = Cls_Label()
+        objCls_Label_nombre.fnt_lbl_parametros(self.ObjCls_Frames_Pofi_estado.frm,"Pofi","#095f56",17,"white",0,0,None,None)
+        self.objCls_Label_online = Cls_Label()
+        self.objCls_Label_online.fnt_lbl_parametros(self.ObjCls_Frames_Pofi_estado.frm,self.lbl_estado,"#095f56",13,"white",1,0,None,None)
         
         #text
         self.txt_chat = tk.Text(ObjCls_Frames_Entrada_Text.frm,font=("FixedSys", 12),width=54,height=2)
@@ -162,13 +171,19 @@ class Cls_Ventana:
 
         self.fnt_leer_AI()
 
+    #función que sirve para establecer el estado de la IA y
+    #poner su mensaje en pantalla 
     def fnt_leer_AI(self):
+        #debemos leer el estado del Json
         self.ObjCls_flujo = Cls_flujo()
         _user,_ai,_state = self.ObjCls_flujo.fnt_leer_JSON()
+        #actualizamos la ventana contantemente 
         self.ventana.after(500,self.fnt_leer_AI)
         self.ventana.update()
+
         self.lbl_estado = _state
-        objCls_Label_online = Cls_Label(self.ObjCls_Frames_Pofi_estado.frm,self.lbl_estado,"#095f56",13,"white",1,0,None,None)
+        #self.objCls_Label_online = Cls_Label(self.ObjCls_Frames_Pofi_estado.frm,self.lbl_estado,"#095f56",13,"white",1,0,None,None)
+        self.objCls_Label_online.fnt_lbl_parametros(self.ObjCls_Frames_Pofi_estado.frm,self.lbl_estado,"#095f56",13,"white",1,0,None,None)
         #self.ScrText_historial_Chat.see(tk.END)
 
         if _ai != "":
@@ -176,20 +191,25 @@ class Cls_Ventana:
             self.ObjCls_flujo.fnt_modificar_JSON(_user = _user, _ai="",_state="En linea")
             
     
-
+    #función para obtener el texto escrito por el usuario 
     def fnt_Obtener_Mensaje(self,event):
 
+        #obtenemos el texto de Text
         mensaje = self.txt_chat.get("1.0",tk.END)
 
-        
+        #nos aseguramos que el mensaje no esté vacío,
+        #si el mensaje es vacío entonces no pasa nada (no se envía y solo hace un salto de línea)
         if self.txt_chat.compare("end-1c","==","1.0"):
             return "break"
         else:
             #debo leer el archivo JSON para usar el condicional
             self.ObjCls_flujo = Cls_flujo()
+            #leemos el archivo Json
             _user,_ai,_status = self.ObjCls_flujo.fnt_leer_JSON()
 
-
+            #debemos asegurarnos que el usuario no tiene un mensaje ya cargado
+            #cuando (_user == "") es porque la IA ya respondió y el programa limpia la parte
+            #del usuario para no mandar más de un mensaje a la vez
             if _user == "":
                 
                 #modifico el contenido del JSON 
@@ -202,12 +222,14 @@ class Cls_Ventana:
                 
                 #envio de mensajes sin manipulación de hilo(esto causa que la ventana principal se congele)
                 #self.ObjCls_Inferencia.fnt_inferencia(mensaje)
+                #los mensajes del usuario van a la derecha y sonde color verde
                 Obj_Cls_Parametros = Cls_Parametros_Burbujas_chat(mensaje=mensaje,tag='tag-right',justify='right',scrolltext=self.ScrText_historial_Chat,color='#d5ffc6')
-
+                #limpiamos la caja de texto porque el mensaje ya se envió
                 self.txt_chat.delete("1.0", tk.END)
                 
-
                 #self.ObjCls_flujo.fnt_modificar_JSON(_user=_user,_ai=_ai,_state="Escribiendo")
+
+                #cargamos la variable _user con el último mensaje que envió el usuario y quedó registrado en el Json 
                 _user,_ai,_state = self.ObjCls_flujo.fnt_leer_JSON()
 
 

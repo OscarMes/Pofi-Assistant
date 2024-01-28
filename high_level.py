@@ -1,7 +1,3 @@
-from historial_mensaje import Cls_Burbuja
-import tkinter as tk
-import time 
-import json
 from flujo_mensaje import Cls_flujo
 
 class Cls_Inferencia:
