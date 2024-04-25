@@ -25,7 +25,7 @@ class Cls_Label:
     def fnt_lbl_parametros(self,ventana,texto,bg,tamano_letra,color_letra,row,column,padx,pady,sticky=None,):
         self.lbl = tk.Label(ventana,text=texto,bg=bg,font=("FixedSys",tamano_letra),fg = color_letra)
         self.lbl.grid(row=row,column=column,sticky=sticky,padx=padx,pady=pady)
-
+ 
 class Cls_Botones:
     def __init__(self,ventana,row,column,width,height,img,bg,acbg,resize,pady,padx,command=None):
         self.selcImagen = PIL.Image.open(img)
@@ -182,9 +182,12 @@ class Cls_Ventana:
         self.ventana.update()
 
         self.lbl_estado = _state
+
         #self.objCls_Label_online = Cls_Label(self.ObjCls_Frames_Pofi_estado.frm,self.lbl_estado,"#095f56",13,"white",1,0,None,None)
-        self.objCls_Label_online.fnt_lbl_parametros(self.ObjCls_Frames_Pofi_estado.frm,self.lbl_estado,"#095f56",13,"white",1,0,None,None)
+        # self.objCls_Label_online.fnt_lbl_parametros(self.ObjCls_Frames_Pofi_estado.frm,self.lbl_estado,"#095f56",13,"white",1,0,None,None)
         #self.ScrText_historial_Chat.see(tk.END)
+        if (self.lbl_estado != ""):
+            self.objCls_Label_online.lbl.config(text=self.lbl_estado)
 
         if _ai != "":
             Obj_Cls_Parametros = Cls_Parametros_Burbujas_chat(mensaje=_ai,tag='tag-left',justify='left',scrolltext=self.ScrText_historial_Chat,color='#ffffff')
