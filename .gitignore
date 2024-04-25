@@ -1,4 +1,5 @@
 modelo_Pofi_Lora_ggml-q4_0.bin
 llama-2-7b-chat-functions.ggmlv3.Q2_K.bin
-.sourcesQT
-.__pycache__
+sourcesQT
+__pycache__
+.vscode
