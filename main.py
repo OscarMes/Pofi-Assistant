@@ -49,6 +49,7 @@ class Cls_Parametros_Burbujas_chat:
         self.scrolledtext.window_create('end', window=self.obj_cls_burbuja_pofi.frm)
     
         self.scrolledtext.see(tk.END)
+        self.scrolledtext.update()
 
 #añado los objetos de las clases creadas anteriormente
 class Cls_Ventana:
@@ -185,15 +186,14 @@ class Cls_Ventana:
 
         #self.objCls_Label_online = Cls_Label(self.ObjCls_Frames_Pofi_estado.frm,self.lbl_estado,"#095f56",13,"white",1,0,None,None)
         # self.objCls_Label_online.fnt_lbl_parametros(self.ObjCls_Frames_Pofi_estado.frm,self.lbl_estado,"#095f56",13,"white",1,0,None,None)
-        #self.ScrText_historial_Chat.see(tk.END)
+        
         if (self.lbl_estado != ""):
             self.objCls_Label_online.lbl.config(text=self.lbl_estado)
 
         if _ai != "":
             Obj_Cls_Parametros = Cls_Parametros_Burbujas_chat(mensaje=_ai,tag='tag-left',justify='left',scrolltext=self.ScrText_historial_Chat,color='#ffffff')
             self.ObjCls_flujo.fnt_modificar_JSON(_user = _user, _ai="",_state="En linea")
-            
-    
+            self.ScrText_historial_Chat.see(tk.END)
     #función para obtener el texto escrito por el usuario 
     def fnt_Obtener_Mensaje(self,event):
 
@@ -209,7 +209,7 @@ class Cls_Ventana:
             self.ObjCls_flujo = Cls_flujo()
             #leemos el archivo Json
             _user,_ai,_status = self.ObjCls_flujo.fnt_leer_JSON()
-
+            # self.ScrText_historial_Chat.see(tk.END)
             #debemos asegurarnos que el usuario no tiene un mensaje ya cargado
             #cuando (_user == "") es porque la IA ya respondió y el programa limpia la parte
             #del usuario para no mandar más de un mensaje a la vez
@@ -234,7 +234,7 @@ class Cls_Ventana:
 
                 #cargamos la variable _user con el último mensaje que envió el usuario y quedó registrado en el Json 
                 _user,_ai,_state = self.ObjCls_flujo.fnt_leer_JSON()
-
+                self.ScrText_historial_Chat.see(tk.END)
 
                 return "break"
             else:
